@@ -3,24 +3,20 @@
 # 解决 Rust 1.82 兼容性、onnxruntime 缺失等问题
 set -e
 
-echo "===== Phase 1: 系统依赖 ====="
-sudo yum install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel
-# 多模态问题修复第3项：OCR 系统依赖（扫描版 PDF 识别）
-# tesseract + chi_sim 语言包 + poppler（pdf2image 依赖）
-sudo yum install -y tesseract tesseract-langpack-chi_sim poppler-utils || echo "[warn] OCR 系统依赖安装失败，扫描版 PDF 无法 OCR"
+# 接收参数：$1=BACKEND_DIR, $2=VENV_DIR
+BACKEND_DIR="${1:-$(pwd)/backend}"
+VENV_DIR="${2:-$HOME/venv}"
 
-echo "===== Phase 2: 重建虚拟环境 ====="
-cd ~
-rm -rf venv
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip setuptools wheel
+# 激活已有的虚拟环境（install.sh 已创建）
+if [ -f "$VENV_DIR/bin/activate" ]; then
+    source "$VENV_DIR/bin/activate"
+fi
 
 echo "===== Phase 3: 安装 maturin（兼容 Rust 1.82）====="
 pip install "maturin==1.7.8"
 
 echo "===== Phase 4: 编译 pydantic-core（复用已装 maturin，跳过隔离构建）====="
-pip install --no-build-isolation "pydantic-core==2.18.6"
+pip install --no-build-isolation "pydantic-core==2.18.2"
 
 echo "===== Phase 5: pydantic v2（不拉依赖，core 已手动装好）====="
 pip install "pydantic==2.7.4" --no-deps

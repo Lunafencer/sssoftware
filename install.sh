@@ -8,7 +8,9 @@ set -e
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR"
-VENV_DIR="$HOME/venv"
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+VENV_DIR="$REAL_HOME/venv"
 
 echo "================================================"
 echo "  设备检修知识检索与作业系统"
@@ -65,7 +67,7 @@ pip install --upgrade pip setuptools wheel
 echo ""
 echo "[4/9] 编译安装 Python 依赖（LoongArch 兼容模式）..."
 cd "$PROJECT_DIR"
-bash deploy_loongarch.sh "$BACKEND_DIR"
+bash deploy_loongarch.sh "$BACKEND_DIR" "$VENV_DIR"
 
 # ---------- 5. 配置环境变量 ----------
 echo ""
@@ -161,7 +163,7 @@ RestartSec=5
 WantedBy=multi-user.target
 SVCEOF
 
-sudo sed -i "s|CURR_USER_PLACEHOLDER|$USER|" /etc/systemd/system/loongchip-backend.service
+sudo sed -i "s|CURR_USER_PLACEHOLDER|$REAL_USER|" /etc/systemd/system/loongchip-backend.service
 sudo sed -i "s|BACKEND_DIR_PLACEHOLDER|$BACKEND_DIR|g" /etc/systemd/system/loongchip-backend.service
 sudo sed -i "s|VENV_BIN_PLACEHOLDER|$VENV_DIR/bin|" /etc/systemd/system/loongchip-backend.service
 
@@ -183,7 +185,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 FEOF
-    sudo sed -i "s|CURR_USER_PLACEHOLDER|$USER|" /etc/systemd/system/loongchip-frontend.service
+    sudo sed -i "s|CURR_USER_PLACEHOLDER|$REAL_USER|" /etc/systemd/system/loongchip-frontend.service
     sudo sed -i "s|FRONTEND_DIST_PLACEHOLDER|$FRONTEND_DIR/dist|" /etc/systemd/system/loongchip-frontend.service
     sudo sed -i "s|VENV_BIN_PLACEHOLDER|$VENV_DIR/bin|" /etc/systemd/system/loongchip-frontend.service
 fi
