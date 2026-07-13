@@ -1,0 +1,95 @@
+/* =========================================================================
+ * 全局样式 / Element Plus / Vant 主题覆盖
+ * ========================================================================= */
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', 'Source Han Sans CN', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button { font-family: inherit; }
+
+/* 等宽字体（设备型号、数字、置信度） */
+.font-mono, .mono {
+  font-family: 'JetBrains Mono', DIN, Menlo, Consolas, monospace;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* 滚动条 —— 工业克制感 */
+::-webkit-scrollbar          { width: 8px; height: 8px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: #C2C9D6; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #98A1B0; }
+
+/* 链接 */
+a { color: var(--color-accent); text-decoration: none; }
+a:hover { color: var(--color-accent-2); }
+
+/* —— Element Plus 主题覆盖 —— */
+.el-button--primary {
+  --el-button-bg-color: var(--color-accent);
+  --el-button-border-color: var(--color-accent);
+  --el-button-hover-bg-color: var(--color-accent-2);
+  --el-button-hover-border-color: var(--color-accent-2);
+  --el-button-active-bg-color: #D85916;
+  --el-button-active-border-color: #D85916;
+}
+.el-button { border-radius: var(--radius-btn); }
+.el-card  { border-radius: var(--radius-card); border-color: var(--color-border); }
+.el-input__wrapper, .el-textarea__inner { border-radius: var(--radius-btn); }
+.el-progress-bar__inner { background-color: var(--color-accent); }
+
+/* —— Vant 主题覆盖 —— */
+:root {
+  --van-primary-color: var(--color-accent);
+  --van-tabbar-active-color: var(--color-accent);
+  --van-button-primary-background: var(--color-accent);
+  --van-button-primary-border-color: var(--color-accent);
+  --van-button-border-radius: var(--radius-btn);
+}
+
+/* —— 通用工具类 —— */
+.industrial-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+.text-hl { background: rgba(242, 107, 31, 0.18); color: var(--color-accent); padding: 0 2px; border-radius: 2px; }
+
+/* —— 安全区 —— */
+.safe-top    { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* —— 隐藏滚动条 —— */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { scrollbar-width: none; }
+
+/* —— 选中文本 —— */
+::selection { background: rgba(242, 107, 31, 0.3); color: var(--color-primary); }
+
+/* —— 禁用 iOS 长按高亮 —— */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* —— 打字机光标 —— */
+.typing-cursor::after {
+  content: '▍';
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--color-ai);
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* —— 全局过渡（暗色切换） —— */
+body, .industrial-card { transition: background-color .2s, color .2s, border-color .2s; }

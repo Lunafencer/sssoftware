@@ -1,0 +1,39 @@
+# ===== Web 框架 =====
+fastapi>=0.111.0
+uvicorn[standard]>=0.30
+##
+gunicorn>=22.0
+python-multipart>=0.0.9
+##         # FastAPI UploadFile/Form 必需
+
+# ===== 数据校验 / 配置 =====
+pydantic>=2.7
+pydantic-settings>=2.3
+
+# ===== 数据库 ORM =====
+sqlalchemy>=2.0
+
+# ===== 鉴权 / 加密 =====
+python-jose[cryptography]>=3.3   # JWT 编解码
+bcrypt>=4.0,<5.0
+##                # 密码哈希
+
+# ===== LLM / 向量 / RAG =====
+dashscope>=1.20
+##                # Qwen 文本 / 多模态 / Embedding
+chromadb>=0.5
+##                # 向量数据库
+
+# ===== 文档解析 =====
+pypdf>=4.2                       # PDF 文本抽取
+python-docx>=1.1
+##               # DOCX 文本抽取
+
+# ===== OCR（扫描版 PDF 识别，多模态问题修复第3项）=====
+# 龙芯上可能无法安装，parser.py 有降级逻辑：没装也能跑，只是扫描版 PDF 不会 OCR
+# 系统需安装 tesseract-ocr + chi_sim 语言包：yum install tesseract tesseract-langpack-chi_sim
+pdf2image>=1.17                   # PDF 转图片（依赖系统 poppler-utils）
+pytesseract>=0.3.10               # Tesseract Python 封装
+
+# ===== 文档导出 =====
+reportlab>=4.0                   # PDF 导出（内置 CJK 字体 STSong-Light 支持中文）

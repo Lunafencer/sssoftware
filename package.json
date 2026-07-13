@@ -1,0 +1,37 @@
+{
+  "name": "equipment-maintenance-knowledge",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "基于多模态大模型技术的设备检修知识检索与作业系统 · 信创认证 LoongArch + 银河麒麟 V11",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@types/dompurify": "^3.0.5",
+    "axios": "^1.6.7",
+    "dompurify": "^3.4.11",
+    "echarts": "^5.5.0",
+    "element-plus": "^2.6.0",
+    "lucide-vue-next": "^0.344.0",
+    "markdown-it": "^14.0.0",
+    "pinia": "^2.1.7",
+    "vant": "^4.8.5",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^13.0.7",
+    "@types/node": "^20.11.24",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.5",
+    "vue-tsc": "^2.0.6"
+  }
+}

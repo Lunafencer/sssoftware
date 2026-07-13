@@ -1,0 +1,24 @@
+# 后端构建上下文 ignore
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+venv
+env
+.env.local
+
+# 本地运行时数据（不打进镜像，运行时挂卷）
+loongchip.db
+loongchip.db-journal
+chroma_db
+uploads
+
+# 元数据
+.git
+.gitignore
+.idea
+.vscode
+*.log
+.DS_Store

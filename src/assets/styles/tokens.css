@@ -1,0 +1,90 @@
+/* =========================================================================
+ * Design Tokens · 设备检修知识检索与作业系统
+ * NEEDS.md 第二节配色方案 + 响应式 + 多主题
+ * ========================================================================= */
+:root {
+  /* —— 主色 —— */
+  --color-primary:   #0B2545;
+  --color-primary-2: #15315F;
+  --color-accent:    #F26B1F;
+  --color-accent-2:  #FF7E36;
+  --color-ai:        #00B7C2;
+
+  /* —— 状态色 —— */
+  --color-success:   #2E7D32;
+  --color-warning:   #ED6C02;
+  --color-danger:    #C62828;
+
+  /* —— 中性色 —— */
+  --color-bg:        #F5F7FA;
+  --color-card:      #FFFFFF;
+  --color-border:    #E4E7ED;
+  --color-text:      #1F2937;
+  --color-text-2:    #6B7280;
+  --color-on-dark:   #E5E7EB;
+
+  /* —— 几何 —— */
+  --radius-card: 10px;
+  --radius-btn:  6px;
+  --radius-pill: 999px;
+
+  /* —— 间距（8 倍数节奏） —— */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  /* —— 字号 —— */
+  --font-size-base: 14px;
+  --font-size-md:   16px;
+  --font-size-lg:   18px;
+
+  /* —— 阴影 —— */
+  --shadow-card:  0 1px 2px rgba(11, 37, 69, 0.04);
+  --shadow-float: 0 8px 24px rgba(11, 37, 69, 0.12);
+
+  /* —— 布局尺寸 —— */
+  --layout-topbar-h:   56px;
+  --layout-sidenav-w:  220px;
+  --layout-mobile-appbar-h: 48px;
+  --layout-mobile-tab-h:    56px;
+}
+
+/* —— 暗色模式 —— */
+[data-theme='dark'] {
+  --color-bg:      #0B1B33;
+  --color-card:    #15315F;
+  --color-border:  #234373;
+  --color-text:    #E5E7EB;
+  --color-text-2:  #94A3B8;
+  --shadow-card:   0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-float:  0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* —— 强光高对比度（车间户外） —— */
+[data-theme='contrast'] {
+  --color-bg:     #FFFFFF;
+  --color-card:   #FFFFFF;
+  --color-text:   #000000;
+  --color-text-2: #1F2937;
+  --color-border: #000000;
+  --color-accent: #E15A0F;
+}
+
+/* —— 字号档位（车间老师傅可放大;sm 用于触屏密度模式） —— */
+[data-fontsize='sm']   { --font-size-base: 12px; }
+[data-fontsize='base'] { --font-size-base: 14px; }
+[data-fontsize='lg']   { --font-size-base: 16px; }
+[data-fontsize='xl']   { --font-size-base: 18px; }
+
+/* —— 手套模式：所有可点击元素 1.3× —— */
+[data-glove='on'] button,
+[data-glove='on'] .van-button,
+[data-glove='on'] .el-button,
+[data-glove='on'] [role='button'] {
+  min-height: 56px !important;
+  min-width: 56px !important;
+  font-size: 16px !important;
+}

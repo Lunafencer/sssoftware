@@ -1,0 +1,3 @@
+# 测试依赖（开发环境）：pip install -r requirements.txt -r requirements-dev.txt
+pytest>=8.0
+httpx>=0.27
