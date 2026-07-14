@@ -12,15 +12,18 @@ if [ -f "$VENV_DIR/bin/activate" ]; then
     source "$VENV_DIR/bin/activate"
 fi
 
-echo "===== Phase 3: 安装 maturin（兼容 Rust 1.82）====="
+echo "===== Phase 3: 安装 maturin + 构建依赖 ====="
 pip install "maturin==1.7.8"
+# typing-extensions 必须在编译 pydantic-core 前安装
+# 因为 --no-build-isolation 模式下，构建脚本 generate_self_schema.py 需要 import typing_extensions
+pip install typing-extensions
 
 echo "===== Phase 4: 编译 pydantic-core（复用已装 maturin，跳过隔离构建）====="
 pip install --no-build-isolation "pydantic-core==2.18.4"
 
 echo "===== Phase 5: pydantic v2（不拉依赖，core 已手动装好）====="
 pip install "pydantic==2.7.4" --no-deps
-pip install annotated-types typing-extensions "typing-inspection>=0.4.2"
+pip install annotated-types "typing-inspection>=0.4.2"
 
 echo "===== Phase 6: cffi + cryptography（42 版用 cffi，不需要 maturin）====="
 pip install cffi
