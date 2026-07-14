@@ -16,14 +16,14 @@ echo "===== Phase 3: 安装 maturin（兼容 Rust 1.82）====="
 pip install "maturin==1.7.8"
 
 echo "===== Phase 4: 编译 pydantic-core（复用已装 maturin，跳过隔离构建）====="
-pip install --no-build-isolation "pydantic-core==2.18.2"
+pip install --no-build-isolation "pydantic-core==2.18.4"
 
 echo "===== Phase 5: pydantic v2（不拉依赖，core 已手动装好）====="
 pip install "pydantic==2.7.4" --no-deps
 pip install annotated-types typing-extensions "typing-inspection>=0.4.2"
 
 echo "===== Phase 6: cffi + cryptography（42 版用 cffi，不需要 maturin）====="
-pip install "cffi==1.16.0"
+pip install cffi
 pip install "cryptography==42.0.8"
 
 echo "===== Phase 7: bcrypt 4.0（纯 C，不需要 Rust）====="
@@ -35,11 +35,12 @@ pip install "fastapi==0.111.0" --no-deps
 pip install "uvicorn==0.30.6"
 pip install gunicorn
 pip install python-multipart
+pip install Jinja2
 
 echo "===== Phase 9: 数据库 + 鉴权 ====="
 pip install pydantic-settings
 pip install sqlalchemy
-pip install "python-jose==3.3.0" ecdsa rsa pyasn1
+pip install python-jose ecdsa rsa pyasn1
 
 echo "===== Phase 10: DashScope + 文档处理 ====="
 pip install dashscope
@@ -47,16 +48,19 @@ pip install pypdf python-docx reportlab
 # 多模态问题修复第3项：OCR Python 依赖（扫描版 PDF 识别，失败不中断）
 pip install pdf2image pytesseract || echo "[warn] OCR Python 包安装失败，扫描版 PDF 无法 OCR"
 
-echo "===== Phase 11: chromadb（跳过 onnxruntime/tokenizers/orjson）====="
-pip install "chromadb==0.5.23" --no-deps
+echo "===== Phase 11: chromadb（LoongArch 兼容安装）====="
+# chroma-hnswlib 是编译包，先装
+pip install chroma-hnswlib || echo "[warn] chroma-hnswlib 编译失败，向量检索不可用"
+# chromadb 0.4.24 用 --no-deps 避免 onnxruntime 等不兼容包
+pip install "chromadb==0.4.24" --no-deps
+# 手动安装 chromadb 0.4.24 的所有依赖（对照 vmuser 已验证 venv）
 pip install pypika pyyaml tenacity tqdm importlib-resources httpx numpy
+pip install posthog overrides backoff typer rich click shellingham
 # 以下包编译可能慢，逐个装，失败不影响核心功能
 pip install mmh3 || echo "[warn] mmh3 编译失败，chromadb 降级运行"
 pip install grpcio || echo "[warn] grpcio 编译失败，chromadb 降级运行"
 pip install opentelemetry-api opentelemetry-sdk opentelemetry-proto opentelemetry-semantic-conventions opentelemetry-exporter-otlp-proto-common opentelemetry-exporter-otlp-proto-grpc || echo "[warn] opentelemetry 安装失败"
 pip install kubernetes || echo "[warn] kubernetes 安装失败"
-# chroma-hnswlib 是向量索引核心，必须装
-pip install chroma-hnswlib || echo "[warn] chroma-hnswlib 编译失败，向量检索不可用"
 
 echo "===== Phase 12: 验证导入 ====="
 BACKEND_DIR="${1:-$(pwd)/backend}"

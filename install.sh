@@ -178,7 +178,7 @@ After=network.target
 Type=simple
 User=CURR_USER_PLACEHOLDER
 WorkingDirectory=FRONTEND_DIST_PLACEHOLDER
-ExecStart=VENV_BIN_PLACEHOLDER/python3 -m http.server 80 --bind 0.0.0.0
+ExecStart=VENV_BIN_PLACEHOLDER/python3 -m http.server 8080 --bind 0.0.0.0
 Restart=always
 RestartSec=5
 
