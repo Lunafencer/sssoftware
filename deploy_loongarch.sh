@@ -54,9 +54,11 @@ pip install pillow || echo "[warn] Pillow 安装失败，图片 OCR 降级到 Qw
 pip install pdf2image pytesseract || echo "[warn] OCR Python 包安装失败，扫描版 PDF 无法 OCR"
 
 echo "===== Phase 11: chromadb（LoongArch 兼容安装）====="
-# numpy 必须在 chroma-hnswlib 之前装，因为编译 chroma-hnswlib 需要 numpy
-pip install numpy
-pip install chroma-hnswlib || echo "[warn] chroma-hnswlib 编译失败，向量检索不可用"
+# numpy 必须锁 1.26.4：龙芯上 numpy 2.x 的 _umath_linalg.so 缺失 gfortran 符号会崩
+# 且必须在 chroma-hnswlib 之前装（编译 hnswlib 需要 numpy 头文件）
+pip install "numpy==1.26.4"
+# chroma-hnswlib 用 --no-build-isolation 才能拿到已装的 numpy
+pip install --no-build-isolation "chroma-hnswlib==0.7.3" || echo "[warn] chroma-hnswlib 编译失败，向量检索不可用"
 # chromadb 0.4.24 用 --no-deps 避免 onnxruntime 等不兼容包
 pip install "chromadb==0.4.24" --no-deps
 # 手动安装 chromadb 0.4.24 的所有依赖（对照 vmuser 已验证 venv）
@@ -64,8 +66,9 @@ pip install pypika pyyaml tenacity tqdm importlib-resources httpx
 pip install posthog overrides backoff typer rich click shellingham
 # 以下包编译可能慢，逐个装，失败不影响核心功能
 pip install mmh3 || echo "[warn] mmh3 编译失败，chromadb 降级运行"
-pip install grpcio || echo "[warn] grpcio 编译失败，chromadb 降级运行"
-pip install opentelemetry-api opentelemetry-sdk opentelemetry-proto opentelemetry-semantic-conventions opentelemetry-exporter-otlp-proto-common opentelemetry-exporter-otlp-proto-grpc || echo "[warn] opentelemetry 安装失败"
+# grpcio 在龙芯上编译极慢（20分钟）且经常失败，跳过——chromadb 0.4.24 不强依赖 grpc
+echo "[info] 跳过 grpcio 编译（龙芯上编译时间过长且非必需）"
+pip install opentelemetry-api opentelemetry-sdk opentelemetry-proto opentelemetry-semantic-conventions opentelemetry-exporter-otlp-proto-common || echo "[warn] opentelemetry 安装失败"
 pip install kubernetes || echo "[warn] kubernetes 安装失败"
 
 echo "===== Phase 12: 验证导入 ====="
