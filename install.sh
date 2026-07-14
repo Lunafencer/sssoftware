@@ -31,41 +31,74 @@ fi
 echo ""
 echo "[2/9] 安装系统依赖..."
 
-# 先装基础编译工具 + Fortran/BLAS/LAPACK（numpy 从源码编译需要）
-# 关键：openblas + lapack 必须装，否则龙芯上 numpy 会链接自带 fallback LAPACK
-# 触发 _gfortran_concat_string 符号版本不匹配错误
-# 关键：rust + cargo 必须装，maturin/pydantic-core 需要 Rust 编译器
-sudo yum install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel \
-                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel \
-                    rust cargo git 2>/dev/null || \
-sudo dnf install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel \
-                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel \
-                    rust cargo git 2>/dev/null || \
-echo "[warn] 部分系统包可能需要手动安装"
-
-# 校验 Rust 已安装（maturin 强依赖）
-if ! command -v rustc &> /dev/null || ! command -v cargo &> /dev/null; then
-    echo "[error] Rust 编译器缺失，maturin/pydantic-core 无法编译"
-    echo "  请手动执行: sudo yum install -y rust cargo"
+# 检测包管理器（Kylin V11 默认 dnf，向下兼容 yum）
+if command -v dnf &> /dev/null; then
+    PKG_MGR="dnf"
+elif command -v yum &> /dev/null; then
+    PKG_MGR="yum"
+else
+    echo "[error] 未找到 yum/dnf 包管理器，脚本无法继续"
     exit 1
 fi
-echo "  Rust: $(rustc --version 2>/dev/null)"
-echo "  Cargo: $(cargo --version 2>/dev/null)"
+echo "  使用包管理器: $PKG_MGR"
 
-# OCR 依赖（可选）
-sudo yum install -y tesseract tesseract-langpack-chi_sim poppler-utils 2>/dev/null || \
-sudo dnf install -y tesseract tesseract-langpack-chi_sim poppler-utils 2>/dev/null || \
-echo "[warn] OCR 依赖安装失败，不影响核心功能"
+# ★ 系统依赖白名单（每一项都是踩过坑总结出来的，缺一不可）★
+#   - git                : 克隆项目（评委机可能没预装）
+#   - gcc / gcc-c++ / make: C/C++ 编译（chroma-hnswlib、numpy 需要）
+#   - python3-devel       : Python.h 头文件（编译 C 扩展必需）
+#   - libffi-devel        : cryptography/cffi 编译需要
+#   - openssl-devel       : cryptography 编译需要
+#   - pkg-config          : 各种 configure 脚本需要
+#   - gcc-gfortran / libgfortran : numpy 编译需要
+#   - openblas / openblas-devel  : numpy 线性代数（关键，避免 _gfortran_concat_string 符号错误）
+#   - lapack / lapack-devel      : numpy 线性代数
+#   - rust / cargo               : maturin / pydantic-core Rust 编译器（关键）
+#   - sqlite-devel               : chromadb 用 sqlite 后端
+#   - zlib-devel                 : Pillow / pypdf 需要
+BASE_PKGS="git gcc gcc-c++ make python3-devel libffi-devel openssl-devel pkg-config \
+           gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel \
+           rust cargo sqlite-devel zlib-devel"
 
-# Nginx：Kylin V11 默认源可能没有，尝试 EPEL 源
+echo "  安装基础编译依赖: $BASE_PKGS"
+sudo $PKG_MGR install -y $BASE_PKGS || {
+    echo "[error] 基础系统依赖安装失败，请检查 $PKG_MGR 源配置"
+    echo "  可尝试手动执行: sudo $PKG_MGR install -y $BASE_PKGS"
+    exit 1
+}
+
+# ★ 装完立刻校验 —— 任何一个缺失都直接退出，别让后面莫名其妙崩 ★
+MISSING=""
+for cmd in git gcc g++ make python3 gfortran rustc cargo; do
+    if ! command -v $cmd &> /dev/null; then
+        MISSING="$MISSING $cmd"
+    fi
+done
+if [ -n "$MISSING" ]; then
+    echo "[error] 以下命令安装后仍不可用:$MISSING"
+    echo "  请检查 $PKG_MGR 源是否配置正确，或手动补装对应包"
+    exit 1
+fi
+
+echo "  ✓ gcc:      $(gcc --version | head -1)"
+echo "  ✓ gfortran: $(gfortran --version | head -1)"
+echo "  ✓ rustc:    $(rustc --version)"
+echo "  ✓ cargo:    $(cargo --version)"
+echo "  ✓ python3:  $(python3 --version)"
+echo "  ✓ git:      $(git --version)"
+
+# OCR 依赖（可选，失败不中断）
+echo "  安装 OCR 依赖（可选）..."
+sudo $PKG_MGR install -y tesseract tesseract-langpack-chi_sim poppler-utils 2>&1 | tail -3 || \
+    echo "  [warn] OCR 依赖安装失败，扫描版 PDF 识别降级"
+
+# Nginx（可选，失败自动切 Python 兜底）
 if ! command -v nginx &> /dev/null; then
-    echo "  尝试安装 Nginx..."
-    sudo yum install -y nginx 2>/dev/null || {
+    echo "  安装 Nginx..."
+    sudo $PKG_MGR install -y nginx 2>&1 | tail -3 || {
         echo "  默认源无 nginx，尝试 EPEL 源..."
-        sudo yum install -y epel-release 2>/dev/null
-        sudo yum install -y nginx 2>/dev/null || {
-            echo "  [警告] Nginx 安装失败"
-            echo "  将使用 Python 内置服务器托管前端静态资源"
+        sudo $PKG_MGR install -y epel-release 2>/dev/null || true
+        sudo $PKG_MGR install -y nginx 2>&1 | tail -3 || {
+            echo "  [警告] Nginx 安装失败，将使用 Python 内置服务器托管前端"
         }
     }
 fi
