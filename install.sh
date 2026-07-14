@@ -31,9 +31,13 @@ fi
 echo ""
 echo "[2/9] 安装系统依赖..."
 
-# 先装基础编译工具
-sudo yum install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel 2>/dev/null || \
-sudo dnf install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel 2>/dev/null || \
+# 先装基础编译工具 + Fortran/BLAS/LAPACK（numpy 从源码编译需要）
+# 关键：openblas + lapack 必须装，否则龙芯上 numpy 会链接自带 fallback LAPACK
+# 触发 _gfortran_concat_string 符号版本不匹配错误
+sudo yum install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel \
+                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel 2>/dev/null || \
+sudo dnf install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel \
+                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel 2>/dev/null || \
 echo "[warn] 部分系统包可能需要手动安装"
 
 # OCR 依赖（可选）
@@ -81,14 +85,19 @@ echo "[5/9] 配置环境变量..."
 cd "$BACKEND_DIR"
 if [ ! -f .env ]; then
     cp .env.example .env
-    # 龙芯环境默认开启调试模式
+    # 生成随机 JWT_SECRET，避免生产安全检查阻止启动
+    JWT_SECRET_VAL=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+    sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$JWT_SECRET_VAL|" .env
+    # 龙芯环境默认开启调试模式（评委演示场景）
     sed -i 's|ALLOW_INSECURE_JWT=.*|ALLOW_INSECURE_JWT=true|' .env
     sed -i 's|DEBUG=.*|DEBUG=true|' .env
-    echo "  .env 已创建，需要填入 DASHSCOPE_API_KEY"
-    echo "  编辑: vi $BACKEND_DIR/.env"
+    echo "  .env 已创建，JWT_SECRET 已自动生成随机值"
+    echo "  需要手动填入 DASHSCOPE_API_KEY: vi $BACKEND_DIR/.env"
 else
     echo "  .env 已存在"
 fi
+# 保证 .env 属主是真实用户
+chown "$REAL_USER:$REAL_USER" .env 2>/dev/null || true
 
 # ---------- 6. 前端 ----------
 echo ""
