@@ -79,6 +79,10 @@ bash deploy_loongarch.sh "$BACKEND_DIR" "$VENV_DIR"
 # 编译安装后再次修正属主（编译过程会写入大量文件，防止属主偏移）
 chown -R "$REAL_USER:$REAL_USER" "$VENV_DIR"
 
+# 修正整个项目目录属主（关键：sudo git clone 会导致 backend/data/*.db 属主 root，
+# 触发 SQLite "attempt to write a readonly database" 让后端启动失败）
+chown -R "$REAL_USER:$REAL_USER" "$PROJECT_DIR"
+
 # ---------- 5. 配置环境变量 ----------
 echo ""
 echo "[5/9] 配置环境变量..."
@@ -125,9 +129,21 @@ if command -v nginx &> /dev/null; then
     echo "  使用 Nginx 托管前端"
     NGINX_CONF="/etc/nginx/conf.d/loongchip.conf"
     sudo mkdir -p /etc/nginx/conf.d
+
+    # 关键：Kylin 默认 /etc/nginx/nginx.conf 里有个 default_server 会抢占 80 端口
+    # 把它的 default_server 标记去掉，让咱们的 conf.d/loongchip.conf 生效
+    if [ -f /etc/nginx/nginx.conf ]; then
+        sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak 2>/dev/null || true
+        sudo sed -i 's/listen[[:space:]]*80[[:space:]]*default_server;/listen 80;/g' /etc/nginx/nginx.conf
+        sudo sed -i 's/listen[[:space:]]*\[::\]:80[[:space:]]*default_server;/listen [::]:80;/g' /etc/nginx/nginx.conf
+    fi
+    # 备份并禁用可能存在的默认站点配置
+    [ -f /etc/nginx/conf.d/default.conf ] && sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak 2>/dev/null || true
+
     cat << 'NGINXEOF' | sudo tee "$NGINX_CONF" > /dev/null
 server {
-    listen       80;
+    listen       80 default_server;
+    listen       [::]:80 default_server;
     server_name  _;
 
     root   FRONTEND_DIST_PLACEHOLDER;
@@ -142,11 +158,30 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
         client_max_body_size 50m;
+    }
+
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:8000;
     }
 }
 NGINXEOF
     sudo sed -i "s|FRONTEND_DIST_PLACEHOLDER|$FRONTEND_DIR/dist|" "$NGINX_CONF"
+
+    # 保证 Nginx 能读到用户家目录下的 dist（nginx 用户需要 755 权限沿路径下钻）
+    chmod 755 "$REAL_HOME" 2>/dev/null || true
+    chmod -R 755 "$FRONTEND_DIR/dist" 2>/dev/null || true
+
+    # SELinux 拦 Nginx 读用户家目录时会 403；Kylin 默认 Enforcing，临时放开
+    if command -v setenforce &> /dev/null; then
+        sudo setenforce 0 2>/dev/null || true
+    fi
+    if command -v sestatus &> /dev/null && [ -f /etc/selinux/config ]; then
+        sudo sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config 2>/dev/null || true
+    fi
+
     sudo nginx -t 2>/dev/null && sudo systemctl enable nginx && sudo systemctl restart nginx || echo "[warn] Nginx 配置需检查"
     WEB_MODE="nginx"
 else
