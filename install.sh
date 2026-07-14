@@ -58,8 +58,11 @@ fi
 echo ""
 echo "[3/9] 创建 Python 虚拟环境..."
 if [ ! -d "$VENV_DIR" ]; then
-    python3 -m venv "$VENV_DIR"
+    # 用真实用户身份创建，避免 root 属主导致后续无法清理
+    sudo -u "$REAL_USER" python3 -m venv "$VENV_DIR"
 fi
+# 无论是否新建，都强制修正属主，防止历史残留权限错误
+chown -R "$REAL_USER:$REAL_USER" "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 pip install --upgrade pip setuptools wheel
 
@@ -68,6 +71,9 @@ echo ""
 echo "[4/9] 编译安装 Python 依赖（LoongArch 兼容模式）..."
 cd "$PROJECT_DIR"
 bash deploy_loongarch.sh "$BACKEND_DIR" "$VENV_DIR"
+
+# 编译安装后再次修正属主（编译过程会写入大量文件，防止属主偏移）
+chown -R "$REAL_USER:$REAL_USER" "$VENV_DIR"
 
 # ---------- 5. 配置环境变量 ----------
 echo ""
