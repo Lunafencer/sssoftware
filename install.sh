@@ -34,11 +34,23 @@ echo "[2/9] 安装系统依赖..."
 # 先装基础编译工具 + Fortran/BLAS/LAPACK（numpy 从源码编译需要）
 # 关键：openblas + lapack 必须装，否则龙芯上 numpy 会链接自带 fallback LAPACK
 # 触发 _gfortran_concat_string 符号版本不匹配错误
+# 关键：rust + cargo 必须装，maturin/pydantic-core 需要 Rust 编译器
 sudo yum install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel \
-                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel 2>/dev/null || \
+                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel \
+                    rust cargo git 2>/dev/null || \
 sudo dnf install -y libffi-devel pkg-config openssl-devel gcc gcc-c++ make python3-devel \
-                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel 2>/dev/null || \
+                    gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel \
+                    rust cargo git 2>/dev/null || \
 echo "[warn] 部分系统包可能需要手动安装"
+
+# 校验 Rust 已安装（maturin 强依赖）
+if ! command -v rustc &> /dev/null || ! command -v cargo &> /dev/null; then
+    echo "[error] Rust 编译器缺失，maturin/pydantic-core 无法编译"
+    echo "  请手动执行: sudo yum install -y rust cargo"
+    exit 1
+fi
+echo "  Rust: $(rustc --version 2>/dev/null)"
+echo "  Cargo: $(cargo --version 2>/dev/null)"
 
 # OCR 依赖（可选）
 sudo yum install -y tesseract tesseract-langpack-chi_sim poppler-utils 2>/dev/null || \
