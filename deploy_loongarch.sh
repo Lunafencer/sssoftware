@@ -48,16 +48,19 @@ pip install python-jose ecdsa rsa pyasn1
 echo "===== Phase 10: DashScope + 文档处理 ====="
 pip install dashscope
 pip install pypdf python-docx reportlab
+# Pillow: parser.py 的 _ocr_image_file 用 PIL.Image 打开图片（可选，失败降级到 Qwen-VL）
+pip install pillow || echo "[warn] Pillow 安装失败，图片 OCR 降级到 Qwen-VL"
 # 多模态问题修复第3项：OCR Python 依赖（扫描版 PDF 识别，失败不中断）
 pip install pdf2image pytesseract || echo "[warn] OCR Python 包安装失败，扫描版 PDF 无法 OCR"
 
 echo "===== Phase 11: chromadb（LoongArch 兼容安装）====="
-# chroma-hnswlib 是编译包，先装
+# numpy 必须在 chroma-hnswlib 之前装，因为编译 chroma-hnswlib 需要 numpy
+pip install numpy
 pip install chroma-hnswlib || echo "[warn] chroma-hnswlib 编译失败，向量检索不可用"
 # chromadb 0.4.24 用 --no-deps 避免 onnxruntime 等不兼容包
 pip install "chromadb==0.4.24" --no-deps
 # 手动安装 chromadb 0.4.24 的所有依赖（对照 vmuser 已验证 venv）
-pip install pypika pyyaml tenacity tqdm importlib-resources httpx numpy
+pip install pypika pyyaml tenacity tqdm importlib-resources httpx
 pip install posthog overrides backoff typer rich click shellingham
 # 以下包编译可能慢，逐个装，失败不影响核心功能
 pip install mmh3 || echo "[warn] mmh3 编译失败，chromadb 降级运行"
