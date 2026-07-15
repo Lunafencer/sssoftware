@@ -55,9 +55,14 @@ echo "  使用包管理器: $PKG_MGR"
 #   - rust / cargo               : maturin / pydantic-core Rust 编译器（关键）
 #   - sqlite-devel               : chromadb 用 sqlite 后端
 #   - zlib-devel                 : Pillow / pypdf 需要
+#   - libxml2-devel / libxslt-devel : lxml 编译需要（python-docx 强依赖 lxml）
+#   - libjpeg-turbo-devel / freetype-devel : Pillow 图像编解码/字体渲染
+#   - bzip2-devel / xz-devel     : reportlab / pypdf 附加压缩支持
 BASE_PKGS="git gcc gcc-c++ make python3-devel libffi-devel openssl-devel pkg-config \
            gcc-gfortran libgfortran openblas openblas-devel lapack lapack-devel \
-           rust cargo sqlite-devel zlib-devel"
+           rust cargo sqlite-devel zlib-devel \
+           libxml2-devel libxslt-devel \
+           libjpeg-turbo-devel freetype-devel bzip2-devel xz-devel"
 
 echo "  安装基础编译依赖: $BASE_PKGS"
 sudo $PKG_MGR install -y $BASE_PKGS || {
