@@ -1,0 +1,6 @@
+import{x as i,d,o as s,c as a,b as e,e as l,f as r,t as n,g as m}from"./index-DDP-zX5t.js";/**
+ * @license lucide-vue-next v0.344.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const x=i("InboxIcon",[["polyline",{points:"22 12 16 12 14 15 10 15 8 12 2 12",key:"o97t9d"}],["path",{d:"M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",key:"oot6mr"}]]),u={class:"flex flex-col items-center justify-center py-12 text-center"},b={class:"w-20 h-20 rounded-full bg-border/50 flex items-center justify-center mb-4"},f={class:"font-medium text-text"},h={class:"text-text-2 text-sm mt-1 max-w-xs"},v=d({__name:"EmptyState",props:{title:{},desc:{},actionLabel:{}},emits:["action"],setup(t){return(c,o)=>(s(),a("div",u,[e("div",b,[l(r(x),{class:"w-10 h-10 text-text-2"})]),e("div",f,n(t.title||"暂无数据"),1),e("div",h,n(t.desc||"该模块占位中,接入后端后将自动填充内容"),1),t.actionLabel?(s(),a("button",{key:0,class:"mt-4 px-4 h-9 rounded-btn bg-accent text-white text-sm font-medium hover:bg-accent-2 transition",onClick:o[0]||(o[0]=y=>c.$emit("action"))},n(t.actionLabel),1)):m("",!0)]))}});export{v as _};

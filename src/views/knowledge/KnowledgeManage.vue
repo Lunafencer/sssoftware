@@ -488,7 +488,7 @@ const isApproved = (s: string) => s === 'approved' || s === 'ready'
               <span class="px-2 py-0.5 rounded text-[11px] mono uppercase bg-bg border border-border">{{ d.type }}</span>
             </td>
             <td class="px-5 py-3">
-              <span class="px-2 py-0.5 rounded-pill text-[11px] border" :class="STATUS_CLS[d.status] || 'bg-bg border-border text-text-2'">
+              <span class="px-2 py-0.5 rounded-pill text-[11px] border whitespace-nowrap inline-block" :class="STATUS_CLS[d.status] || 'bg-bg border-border text-text-2'">
                 {{ STATUS_LABEL[d.status] || d.status }}
               </span>
             </td>
@@ -588,7 +588,7 @@ const isApproved = (s: string) => s === 'approved' || s === 'ready'
             <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-text-2">
               <span class="mono">#{{ d.id }}</span>
               <span class="px-1.5 py-0.5 rounded mono uppercase bg-bg border border-border">{{ d.type }}</span>
-              <span class="px-1.5 py-0.5 rounded-pill border" :class="STATUS_CLS[d.status] || 'bg-bg border-border'">{{ STATUS_LABEL[d.status] || d.status }}</span>
+              <span class="px-1.5 py-0.5 rounded-pill border whitespace-nowrap inline-block" :class="STATUS_CLS[d.status] || 'bg-bg border-border'">{{ STATUS_LABEL[d.status] || d.status }}</span>
             </div>
             <div v-if="d.reason" class="text-[11px] text-text-2 mt-0.5 truncate">原因：{{ d.reason }}</div>
           </div>

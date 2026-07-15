@@ -213,7 +213,7 @@ const STATUS_CLS: Record<string, string> = {
               <span class="px-2 py-0.5 rounded text-[11px] bg-bg border border-border whitespace-nowrap inline-block">{{ (d.category || 'manual') === 'experience' ? '案例' : '手册' }}</span>
             </td>
             <td class="px-5 py-3">
-              <span class="px-2 py-0.5 rounded-pill text-[11px] border" :class="STATUS_CLS[d.status] || 'bg-bg border-border text-text-2'">
+              <span class="px-2 py-0.5 rounded-pill text-[11px] border whitespace-nowrap inline-block" :class="STATUS_CLS[d.status] || 'bg-bg border-border text-text-2'">
                 {{ STATUS_LABEL[d.status] || d.status }}
               </span>
             </td>
@@ -280,7 +280,7 @@ const STATUS_CLS: Record<string, string> = {
               <span class="mono">#{{ d.id }}</span>
               <span class="px-1.5 py-0.5 rounded mono uppercase bg-bg border border-border">{{ d.type }}</span>
               <span class="px-1.5 py-0.5 rounded bg-bg border border-border whitespace-nowrap inline-block">{{ (d.category || 'manual') === 'experience' ? '案例' : '手册' }}</span>
-              <span class="px-1.5 py-0.5 rounded-pill border" :class="STATUS_CLS[d.status] || 'bg-bg border-border'">{{ STATUS_LABEL[d.status] || d.status }}</span>
+              <span class="px-1.5 py-0.5 rounded-pill border whitespace-nowrap inline-block" :class="STATUS_CLS[d.status] || 'bg-bg border-border'">{{ STATUS_LABEL[d.status] || d.status }}</span>
             </div>
           </div>
         </div>
@@ -318,7 +318,7 @@ const STATUS_CLS: Record<string, string> = {
             <span class="mono">#{{ detail.id }}</span>
             <span class="px-1.5 py-0.5 rounded mono uppercase bg-bg border border-border">{{ detail.type }}</span>
             <span v-if="detail.category" class="px-1.5 py-0.5 rounded bg-bg border border-border whitespace-nowrap inline-block">{{ detail.category === 'experience' ? '案例' : '手册' }}</span>
-            <span class="px-1.5 py-0.5 rounded-pill border" :class="STATUS_CLS[detail.status] || 'bg-bg border-border'">{{ STATUS_LABEL[detail.status] || detail.status }}</span>
+            <span class="px-1.5 py-0.5 rounded-pill border whitespace-nowrap inline-block" :class="STATUS_CLS[detail.status] || 'bg-bg border-border'">{{ STATUS_LABEL[detail.status] || detail.status }}</span>
             <span class="mono opacity-70">{{ detail.created_at }}</span>
           </div>
           <!-- FIX6 第 2 项：PDF / DOCX 用 iframe Blob URL 预览 -->

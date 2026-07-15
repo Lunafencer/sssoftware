@@ -213,7 +213,7 @@ const STATUS_CLS: Record<string, string> = {
             <div class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-text-2">
               <span class="mono">#{{ d.id }}</span>
               <span class="px-1.5 py-0.5 rounded mono uppercase bg-bg border border-border">{{ d.type }}</span>
-              <span class="px-1.5 py-0.5 rounded-pill border" :class="STATUS_CLS[d.status] || 'bg-bg border-border'">
+              <span class="px-1.5 py-0.5 rounded-pill border whitespace-nowrap inline-block" :class="STATUS_CLS[d.status] || 'bg-bg border-border'">
                 {{ STATUS_LABEL[d.status] || d.status }}
               </span>
               <span v-if="d.uploader" class="mono">提交人 {{ d.uploader }}</span>
